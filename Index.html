@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B7A86">
+<meta name="mobile-web-app-capable" content="yes">
+<title>ID.3 žurnāls</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#EEF2F5; --card:#FFFFFF; --ink:#12202C; --mute:#5B6B79; --line:#D9E1E8;
+  --accent:#0B7A86; --accent-ink:#FFFFFF; --warm:#C2410C; --good:#18794E; --field:#F6F8FA;
+  --font-head:"Space Grotesk","Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0E161D; --card:#16212A; --ink:#E7EEF3; --mute:#93A4B2; --line:#27363F;
+    --accent:#3FB6C2; --accent-ink:#06242A; --warm:#F08A5D; --good:#5CC48E; --field:#101A21; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.4;
+  padding-top:max(20px,env(safe-area-inset-top,0px));padding-bottom:max(48px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--font-head);font-size:1.5rem;margin:0;letter-spacing:-.01em}
+h2{font-family:var(--font-head);font-size:1rem;margin:0 0 12px;font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sub{color:var(--mute);font-size:.85rem}
+.sub.ok{color:var(--good)} .sub.bad{color:var(--warm)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.tile b{display:block;font-family:var(--font-head);font-size:1.9rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{color:var(--mute);font-size:.8rem}
+.tile small{display:block;color:var(--mute);font-size:.75rem;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--mute);min-width:0}
+input[type=date],input[type=number],input[type=text]{width:100%;font:inherit;font-size:1.05rem;color:var(--ink);background:var(--field);
+  border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:46px;font-variant-numeric:tabular-nums}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.full{grid-column:1/-1}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--field)}
+.seg button{flex:1;font:inherit;font-size:1rem;min-height:46px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.actions{display:flex;gap:12px;margin-top:14px}
+.btn{font:inherit;font-weight:600;min-height:48px;border-radius:12px;border:0;cursor:pointer;padding:0 18px}
+.btn.primary{flex:1;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:transparent;border:1px solid var(--warm);color:var(--warm)}
+.btn.small{min-height:40px;padding:0 14px;font-size:.9rem}
+.note{font-size:.8rem;color:var(--mute);margin:10px 0 0}
+.note.warn{color:var(--warm)}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.bar .n{font-size:.9rem}
+.bar .v{font-variant-numeric:tabular-nums;font-weight:600}
+.bar .t{grid-column:1/-1;height:8px;border-radius:4px;background:var(--field);overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.bar .m{grid-column:1/-1;font-size:.75rem;color:var(--mute)}
+.list{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border:0;border-top:1px solid var(--line);
+  width:100%;text-align:left;background:none;color:var(--ink);font:inherit;cursor:pointer}
+.row:first-child{border-top:0}
+.row .d{font-variant-numeric:tabular-nums;font-weight:600}
+.row .s{font-size:.8rem;color:var(--mute);font-variant-numeric:tabular-nums}
+.row .c{font-family:var(--font-head);font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums;text-align:right}
+.row .c small{display:block;font-family:var(--font-body);font-weight:400;font-size:.7rem;color:var(--mute)}
+.empty{color:var(--mute);font-size:.9rem;padding:8px 0}
+.foot{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+details summary{cursor:pointer;font-weight:600;font-family:var(--font-head)}
+details .grid{margin-top:12px}
+ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>ID.3 žurnāls</h1>
+    <span class="sub" id="status">Ielādē…</span>
+  </div>
+
+  <div class="card" id="connect" hidden>
+    <h2>Google Drive</h2>
+    <p class="note" style="margin-top:0" id="connect-text">Dati tagad glabājas tikai šajā ierīcē. Pieslēdzies Google, lai tie saglabātos arī tavā Drive.</p>
+    <div class="foot" style="margin-top:12px">
+      <button class="btn primary" type="button" id="btn-connect">Pieslēgties Google Drive</button>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><span>Vidējais patēriņš</span><b id="t-all">–</b><small id="t-all-s">kWh/100 km</small></div>
+    <div class="tile"><span>Pēdējās 7 dienas</span><b id="t-7">–</b><small id="t-7-s">kWh/100 km</small></div>
+  </div>
+
+  <form class="card" id="form" autocomplete="off">
+    <h2 id="form-title">Jauns ieraksts</h2>
+    <div class="grid">
+      <label class="full">Datums<input type="date" id="f-date" required></label>
+      <label class="full">Odometrs dienas beigās, km<input type="number" id="f-odo" inputmode="numeric" min="0" step="1" placeholder="70156" required></label>
+      <label>Akumulators rītā, %<input type="number" id="f-s0" inputmode="numeric" min="0" max="100" step="1" placeholder="80"></label>
+      <label>Akumulators vakarā, %<input type="number" id="f-s1" inputmode="numeric" min="0" max="100" step="1" placeholder="55"></label>
+      <label>Āra temperatūra, °C<input type="number" id="f-temp" inputmode="decimal" step="1" placeholder="3"></label>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--mute)">Priekšsildīšana
+        <div class="seg" role="group" aria-label="Priekšsildīšana">
+          <button type="button" id="p-yes" aria-pressed="false">Jā</button>
+          <button type="button" id="p-no" aria-pressed="false">Nē</button>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" type="submit" id="save">Saglabāt</button>
+      <button class="btn ghost" type="button" id="reset" hidden>Atcelt</button>
+      <button class="btn danger" type="button" id="del" hidden>Dzēst</button>
+    </div>
+    <p class="note" id="form-note"></p>
+  </form>
+
+  <div class="card">
+    <h2>Patēriņš pēc apstākļiem</h2>
+    <div class="bars" id="bars"></div>
+    <p class="note">kWh rēķina no paneļa % un akumulatora ietilpības, tāpēc tas ir novērtējums. Rēķina tikai dienas bez izlaistām dienām un bez uzlādes dienas laikā.</p>
+  </div>
+
+  <div class="card">
+    <h2>Dienas</h2>
+    <div class="list" id="list"></div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Iestatījumi</summary>
+      <div class="grid">
+        <label class="full">Lietderīgā ietilpība, kWh<input type="number" id="f-cap" inputmode="decimal" step="0.1" min="20" max="100"></label>
+        <label class="full">Google OAuth Client ID<input type="text" id="f-cid" placeholder="123456789-abc.apps.googleusercontent.com" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+        <label class="full">Google konts<input type="text" id="f-hint" placeholder="martins.danilevics@gmail.com" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      </div>
+      <p class="note">Ietilpība pēc AVILOO testa 20.04.2026: 49,6 kWh (jaunam 54). Client ID ievada vienu reizi katrā ierīcē.</p>
+      <div class="foot">
+        <button class="btn ghost small" type="button" id="btn-sync">Sinhronizēt tagad</button>
+        <button class="btn ghost small" type="button" id="csv">Lejupielādēt CSV</button>
+        <button class="btn ghost small" type="button" id="btn-signout">Atvienot Drive</button>
+      </div>
+      <p class="note" id="set-note"></p>
+    </details>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+(function(){
+  "use strict";
+  /* ====== konfigurācija ====== */
+  var DEFAULT_CLIENT_ID = "";                       // vari ierakstīt šeit, lai nevajadzētu ievadīt katrā ierīcē
+  var DEFAULT_HINT = "martins.danilevics@gmail.com";
+  var FILE_NAME = "ID3_zurnals.json";
+  var SCOPE = "https://www.googleapis.com/auth/drive.file";
+  var LS = "id3z-data", LS_CID = "id3z-cid", LS_HINT = "id3z-hint", LS_FILE = "id3z-fileid", LS_CONN = "id3z-connected";
+  var DEFAULT_CAP = 49.6;
+
+  /* ====== palīgfunkcijas ====== */
+  var $ = function(id){ return document.getElementById(id); };
+  function pad(n){ return (n<10?"0":"")+n; }
+  function today(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function dayNum(s){ var p=s.split("-"); return Math.round(Date.UTC(+p[0],+p[1]-1,+p[2])/86400000); }
+  function fmtDate(s){ var p=s.split("-"); return p[2]+"."+p[1]+"."+p[0]; }
+  function num(v){ return (v===null||v===undefined||v==="")?null:Number(v); }
+  function f1(v){ return v.toFixed(1).replace(".",","); }
+  function fmtKm(v){ return Math.round(v).toLocaleString("lv-LV"); }
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+  /* ====== dati ====== */
+  var state = {cap:DEFAULT_CAP, capUpd:0, entries:{}, dels:{}};
+  try{ var raw=lsGet(LS); if(raw){ var o=JSON.parse(raw); if(o && o.entries){ state=o; state.dels=state.dels||{}; state.capUpd=state.capUpd||0; } } }catch(e){}
+  function persist(){ lsSet(LS, JSON.stringify(state)); }
+
+  function mergeStates(a,b){
+    var out={cap:a.cap, capUpd:a.capUpd||0, entries:{}, dels:{}};
+    if((b.capUpd||0) > out.capUpd){ out.cap=b.cap; out.capUpd=b.capUpd; }
+    var dates={};
+    [a.entries,b.entries,a.dels,b.dels].forEach(function(m){ Object.keys(m||{}).forEach(function(k){ dates[k]=1; }); });
+    Object.keys(dates).forEach(function(d){
+      var best=null;
+      [a.entries&&a.entries[d], b.entries&&b.entries[d]].forEach(function(e){ if(e && (!best || (e.upd||0)>(best.upd||0))) best=e; });
+      var del=Math.max((a.dels&&a.dels[d])||0, (b.dels&&b.dels[d])||0);
+      if(best && (best.upd||0) > del) out.entries[d]=best;
+      else if(del) out.dels[d]=del;
+    });
+    return out;
+  }
+
+  /* ====== aprēķins ====== */
+  function compute(){
+    var list=Object.keys(state.entries).sort().map(function(k){ return state.entries[k]; }), out=[], cap=state.cap;
+    for(var i=0;i<list.length;i++){
+      var e=list[i], p=i>0?list[i-1]:null, r={e:e,km:null,gap:null,kwh:null,cons:null,why:""};
+      if(p && e.odo!=null && p.odo!=null){ r.km=e.odo-p.odo; r.gap=dayNum(e.date)-dayNum(p.date); }
+      if(r.km!=null && r.km>0){
+        if(r.gap!==1) r.why="izlaista diena";
+        else if(e.soc0==null||e.soc1==null) r.why="nav %";
+        else if(e.soc0<e.soc1) r.why="uzlāde dienā";
+        else { r.kwh=(e.soc0-e.soc1)/100*cap; if(r.kwh>0) r.cons=r.kwh/r.km*100; }
+      }
+      out.push(r);
+    }
+    return out;
+  }
+  function agg(rows,test){
+    var km=0,kwh=0,n=0;
+    rows.forEach(function(r){ if(r.cons!=null && test(r)){ km+=r.km; kwh+=r.kwh; n++; } });
+    return {n:n,km:km,kwh:kwh,cons:km>0?kwh/km*100:null};
+  }
+
+  /* ====== attēlošana ====== */
+  function render(){
+    var rows=compute();
+    var all=agg(rows,function(){return true;});
+    $("t-all").textContent=all.cons!=null?f1(all.cons):"–";
+    $("t-all-s").textContent=all.n?"kWh/100 km, "+all.n+" d.":"kWh/100 km, vēl nav datu";
+    var last7=rows.filter(function(r){return r.cons!=null;}).slice(-7), set7={};
+    last7.forEach(function(r){ set7[r.e.date]=1; });
+    var a7=agg(rows,function(r){return set7[r.e.date];});
+    $("t-7").textContent=a7.cons!=null?f1(a7.cons):"–";
+    $("t-7-s").textContent=a7.n?"kWh/100 km, "+a7.n+" d.":"kWh/100 km, vēl nav datu";
+
+    var groups=[
+      ["Zem 0 °C",function(r){return r.e.temp!=null&&r.e.temp<0;}],
+      ["0 līdz 10 °C",function(r){return r.e.temp!=null&&r.e.temp>=0&&r.e.temp<10;}],
+      ["10 °C un vairāk",function(r){return r.e.temp!=null&&r.e.temp>=10;}],
+      ["Ar priekšsildīšanu",function(r){return r.e.pre===true;}],
+      ["Bez priekšsildīšanas",function(r){return r.e.pre===false;}]
+    ].map(function(g){ var a=agg(rows,g[1]); a.name=g[0]; return a; });
+    var max=Math.max.apply(null,groups.map(function(g){return g.cons||0;}).concat([1]));
+    var bars=$("bars"); bars.textContent="";
+    groups.forEach(function(g){
+      var b=document.createElement("div"); b.className="bar";
+      var n=document.createElement("span"); n.className="n"; n.textContent=g.name;
+      var v=document.createElement("span"); v.className="v"; v.textContent=g.cons!=null?f1(g.cons)+" kWh":"–";
+      var t=document.createElement("div"); t.className="t"; var i=document.createElement("i"); i.style.width=g.cons!=null?Math.round(g.cons/max*100)+"%":"0%"; t.appendChild(i);
+      var m=document.createElement("div"); m.className="m"; m.textContent=g.n?g.n+" d., "+fmtKm(g.km)+" km":"vēl nav dienu";
+      b.appendChild(n); b.appendChild(v); b.appendChild(t); b.appendChild(m); bars.appendChild(b);
+    });
+
+    var list=$("list"); list.textContent="";
+    if(!rows.length){
+      var em=document.createElement("div"); em.className="empty";
+      em.textContent="Vēl nav ierakstu. Pirmajā reizē ievadi tikai datumu un odometru. Patēriņš parādīsies no otrā ieraksta.";
+      list.appendChild(em);
+    }
+    rows.slice().reverse().forEach(function(r){
+      var e=r.e, b=document.createElement("button"); b.type="button"; b.className="row";
+      var d=document.createElement("span"); d.className="d"; d.textContent=fmtDate(e.date);
+      var mid=document.createElement("span"), l1=document.createElement("div");
+      l1.textContent=r.km!=null?(r.km+" km"):(fmtKm(e.odo)+" km (sākums)");
+      var s=document.createElement("div"); s.className="s", bits=[];
+      var bits=[];
+      if(e.soc0!=null&&e.soc1!=null) bits.push(e.soc0+" → "+e.soc1+" %"); else if(e.soc1!=null) bits.push("vakarā "+e.soc1+" %");
+      if(e.temp!=null) bits.push(e.temp+" °C");
+      if(e.pre===true) bits.push("priekšsildīšana");
+      if(r.kwh!=null) bits.push(f1(r.kwh)+" kWh");
+      s.textContent=bits.join(" · ");
+      mid.appendChild(l1); mid.appendChild(s);
+      var c=document.createElement("span"); c.className="c";
+      if(r.cons!=null){ c.textContent=f1(r.cons); var sm=document.createElement("small"); sm.textContent="kWh/100"; c.appendChild(sm); }
+      else if(r.why){ var sm2=document.createElement("small"); sm2.textContent=r.why; c.appendChild(sm2); }
+      b.appendChild(d); b.appendChild(mid); b.appendChild(c);
+      b.addEventListener("click",function(){ startEdit(e.date); });
+      list.appendChild(b);
+    });
+  }
+
+  /* ====== forma ====== */
+  var editing=null, pre=null, confirmDel=false;
+  function setPre(v){ pre=v; $("p-yes").setAttribute("aria-pressed",String(v===true)); $("p-no").setAttribute("aria-pressed",String(v===false)); }
+  function fillForm(e){
+    $("f-date").value=e.date; $("f-odo").value=e.odo==null?"":e.odo;
+    $("f-s0").value=e.soc0==null?"":e.soc0; $("f-s1").value=e.soc1==null?"":e.soc1;
+    $("f-temp").value=e.temp==null?"":e.temp; setPre(e.pre===undefined?null:e.pre);
+  }
+  function note(msg,warn){ var n=$("form-note"); n.textContent=msg; n.className="note"+(warn?" warn":""); }
+  function resetForm(keepNote){
+    editing=null; confirmDel=false; $("form-title").textContent="Jauns ieraksts";
+    fillForm({date:today()}); $("f-odo").value=""; $("reset").hidden=true; $("del").hidden=true; $("del").textContent="Dzēst";
+    if(!keepNote) note("");
+  }
+  function startEdit(date){
+    var e=state.entries[date]; if(!e) return;
+    editing=date; confirmDel=false; $("form-title").textContent="Labot "+fmtDate(date);
+    fillForm(e); $("reset").hidden=false; $("del").hidden=false; $("del").textContent="Dzēst"; note("");
+    $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  $("p-yes").addEventListener("click",function(){ setPre(pre===true?null:true); });
+  $("p-no").addEventListener("click",function(){ setPre(pre===false?null:false); });
+  $("reset").addEventListener("click",function(){ resetForm(); });
+  $("f-date").addEventListener("change",function(){ var d=$("f-date").value; if(d && state.entries[d] && editing!==d) startEdit(d); });
+
+  $("form").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var date=$("f-date").value, odo=num($("f-odo").value), s0=num($("f-s0").value), s1=num($("f-s1").value), t=num($("f-temp").value);
+    if(!date||odo==null){ note("Ievadi datumu un odometru.",true); return; }
+    if((s0!=null&&(s0<0||s0>100))||(s1!=null&&(s1<0||s1>100))){ note("Akumulatora % jābūt no 0 līdz 100.",true); return; }
+    var prev=null; Object.keys(state.entries).sort().forEach(function(k){ if(k<date) prev=state.entries[k]; });
+    if(prev&&prev.odo!=null&&odo<prev.odo){ note("Odometrs ir mazāks nekā "+fmtDate(prev.date)+" ("+fmtKm(prev.odo)+" km). Pārbaudi ciparus.",true); return; }
+    state.entries[date]={date:date,odo:odo,soc0:s0,soc1:s1,temp:t,pre:pre,upd:Date.now()};
+    delete state.dels[date]; persist(); render(); resetForm(true); note("Saglabāts "+fmtDate(date)+"."); scheduleSync();
+  });
+  $("del").addEventListener("click",function(){
+    if(!editing) return;
+    if(!confirmDel){ confirmDel=true; $("del").textContent="Vēlreiz: dzēst"; note("Spied vēlreiz, lai dzēstu ierakstu.",true); return; }
+    var d=editing; delete state.entries[d]; state.dels[d]=Date.now(); persist(); render(); resetForm(true); note("Ieraksts dzēsts."); scheduleSync();
+  });
+  $("f-cap").addEventListener("change",function(){
+    var v=num($("f-cap").value);
+    if(v==null||v<20||v>100){ $("f-cap").value=state.cap; return; }
+    state.cap=v; state.capUpd=Date.now(); persist(); render(); scheduleSync();
+  });
+  $("csv").addEventListener("click",function(){
+    var rows=compute(), lines=["Datums;Odometrs;km;Akum_rita_%;Akum_vakara_%;Temp_C;Priekssildisana;kWh;kWh_100km"];
+    rows.forEach(function(r){ var e=r.e;
+      lines.push([e.date,e.odo,r.km==null?"":r.km,e.soc0==null?"":e.soc0,e.soc1==null?"":e.soc1,e.temp==null?"":e.temp,
+        e.pre===true?"Ja":(e.pre===false?"Ne":""),r.kwh==null?"":r.kwh.toFixed(2).replace(".",","),r.cons==null?"":r.cons.toFixed(1).replace(".",",")].join(";"));
+    });
+    var blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="ID3_zurnals.csv";
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000);
+  });
+
+  /* ====== Google Drive ====== */
+  var token=null, tokenExp=0, tokenClient=null, pending=null;
+  function clientId(){ return (lsGet(LS_CID)||DEFAULT_CLIENT_ID||"").trim(); }
+  function hint(){ return (lsGet(LS_HINT)||DEFAULT_HINT||"").trim(); }
+  function setStatus(text,cls){ var s=$("status"); s.textContent=text; s.className="sub"+(cls?" "+cls:""); }
+  function setSetNote(t){ $("set-note").textContent=t||""; }
+
+  function ensureClient(){
+    if(tokenClient) return true;
+    if(!window.google||!google.accounts||!google.accounts.oauth2||!clientId()) return false;
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:clientId(), scope:SCOPE, login_hint:hint()||undefined,
+      callback:function(resp){
+        var p=pending; pending=null;
+        if(resp&&resp.access_token){
+          token=resp.access_token; tokenExp=Date.now()+((+resp.expires_in||3600)-60)*1000; lsSet(LS_CONN,"1");
+          if(p) p.resolve(token);
+        } else if(p) p.reject(new Error((resp&&resp.error)||"token"));
+      },
+      error_callback:function(err){ var p=pending; pending=null; if(p) p.reject(new Error((err&&err.type)||"popup")); }
+    });
+    return true;
+  }
+  function getToken(interactive){
+    if(token && Date.now()<tokenExp) return Promise.resolve(token);
+    if(!ensureClient()) return Promise.reject(new Error("no_client"));
+    return new Promise(function(resolve,reject){
+      pending={resolve:resolve,reject:reject};
+      try{ tokenClient.requestAccessToken({prompt: interactive?"":"none"}); }catch(e){ pending=null; reject(e); }
+    });
+  }
+  function drive(url,opts,retry){
+    return getToken(false).then(function(tk){
+      opts=opts||{}; opts.headers=Object.assign({Authorization:"Bearer "+tk},opts.headers||{});
+      return fetch(url,opts).then(function(r){
+        if((r.status===401||r.status===403)&&!retry){ token=null; return drive(url,opts,true); }
+        if(!r.ok) throw new Error("drive_"+r.status);
+        return r;
+      });
+    });
+  }
+  function findFile(){
+    var id=lsGet(LS_FILE); if(id) return Promise.resolve(id);
+    var q=encodeURIComponent("name='"+FILE_NAME+"' and trashed=false");
+    return drive("https://www.googleapis.com/drive/v3/files?q="+q+"&fields=files(id,name)&spaces=drive").then(function(r){return r.json();})
+      .then(function(j){ var f=j.files&&j.files[0]; if(f){ lsSet(LS_FILE,f.id); return f.id; } return null; });
+  }
+  function readFile(id){ return drive("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media").then(function(r){return r.json();}); }
+  function createFile(body){
+    var boundary="id3z"+Date.now();
+    var meta=JSON.stringify({name:FILE_NAME,mimeType:"application/json"});
+    var payload="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+"\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+body+"\r\n--"+boundary+"--";
+    return drive("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+boundary},body:payload})
+      .then(function(r){return r.json();}).then(function(j){ lsSet(LS_FILE,j.id); return j.id; });
+  }
+  function updateFile(id,body){
+    return drive("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{"Content-Type":"application/json"},body:body});
+  }
+
+  var syncing=false, again=false, timer=null;
+  function scheduleSync(){ if(!lsGet(LS_CONN)) { updateConnectCard(); return; } clearTimeout(timer); timer=setTimeout(function(){ sync(false); },600); }
+  function sync(interactive){
+    if(syncing){ again=true; return Promise.resolve(); }
+    syncing=true; setStatus("Sinhronizē…");
+    return getToken(interactive).then(function(){ return findFile(); }).then(function(id){
+      if(!id){ return createFile(JSON.stringify(state)); }
+      return readFile(id).then(function(remote){
+        var merged=mergeStates(state,remote||{entries:{}});
+        var changedLocal=JSON.stringify(merged)!==JSON.stringify(state);
+        state=merged; persist();
+        if(changedLocal){ render(); $("f-cap").value=state.cap; }
+        if(JSON.stringify(merged)!==JSON.stringify(remote)) return updateFile(id,JSON.stringify(merged));
+      });
+    }).then(function(){
+      setStatus("Saglabāts Drive "+new Date().toLocaleTimeString("lv-LV",{hour:"2-digit",minute:"2-digit"}),"ok"); setSetNote("");
+    }).catch(function(e){
+      var m=String(e&&e.message||e);
+      if(m==="no_client") setStatus("Ievadi Client ID iestatījumos","bad");
+      else setStatus("Drive nav pieslēgts, dati ir šajā ierīcē","bad");
+      if(m.indexOf("drive_")===0) setSetNote("Drive kļūda: "+m.replace("drive_","HTTP "));
+      else if(m!=="no_client") setSetNote("Pieslēgšanās neizdevās ("+m+"). Spied Pieslēgties Google Drive.");
+    }).then(function(){ syncing=false; updateConnectCard(); if(again){ again=false; sync(false); } });
+  }
+  function updateConnectCard(){
+    var need=!lsGet(LS_CONN)||(!token&&$("status").className.indexOf("bad")>=0);
+    $("connect").hidden=!need;
+    $("connect-text").textContent=clientId()?"Dati tagad glabājas tikai šajā ierīcē. Pieslēdzies Google kontam "+(hint()||"")+", lai tie saglabātos arī Drive."
+      :"Lai saglabātu datus Drive, iestatījumos ievadi Google OAuth Client ID (to, kas bija izveidots Google Drive versijai), pēc tam spied Pieslēgties.";
+  }
+  $("btn-connect").addEventListener("click",function(){
+    if(!clientId()){ document.querySelector("details").open=true; $("f-cid").focus(); return; }
+    tokenClient=null; token=null; sync(true);
+  });
+  $("btn-sync").addEventListener("click",function(){ if(!clientId()){ setSetNote("Vispirms ievadi Client ID."); return; } sync(true); });
+  $("btn-signout").addEventListener("click",function(){
+    try{ if(token&&window.google) google.accounts.oauth2.revoke(token,function(){}); }catch(e){}
+    token=null; tokenClient=null; lsDel(LS_CONN); lsDel(LS_FILE); setStatus("Dati tikai šajā ierīcē"); setSetNote("Drive atvienots. Dati Drive paliek, šajā ierīcē arī."); updateConnectCard();
+  });
+  $("f-cid").addEventListener("change",function(){ lsSet(LS_CID,$("f-cid").value.trim()); tokenClient=null; updateConnectCard(); setSetNote("Client ID saglabāts."); });
+  $("f-hint").addEventListener("change",function(){ lsSet(LS_HINT,$("f-hint").value.trim()); tokenClient=null; updateConnectCard(); });
+
+  /* ====== sākums ====== */
+  $("f-cap").value=state.cap; $("f-cid").value=clientId(); $("f-hint").value=hint();
+  resetForm(); render(); updateConnectCard();
+  setStatus(lsGet(LS_CONN)?"Dati šajā ierīcē":"Dati tikai šajā ierīcē");
+  window.addEventListener("load",function(){
+    // GIS skripts var ielādēties vēlāk par load
+    var tries=0, iv=setInterval(function(){
+      tries++;
+      if(window.google&&google.accounts&&google.accounts.oauth2){ clearInterval(iv); if(lsGet(LS_CONN)&&clientId()) sync(false); }
+      else if(tries>40){ clearInterval(iv); }
+    },250);
+  });
+})();
+</script>
+</body>
+</html>
