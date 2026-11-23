@@ -157,7 +157,8 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
   var DEFAULT_CLIENT_ID = "433432963029-da3nhrredpd9t0dk6b8bb1juh7n156av.apps.googleusercontent.com";
   var DEFAULT_HINT = "martins.danilevics@gmail.com";
   var FILE_NAME = "ID3_zurnals.json";
-  var SCOPE = "https://www.googleapis.com/auth/drive.file";
+  var FOLDER_ID = "1IlufloQoYCpZ3ERgeJX1rMnkerOLZGy1";   // koplietotā Drive mape WV ID3 Amserv
+  var SCOPE = "https://www.googleapis.com/auth/drive";
   var LS = "id3z-data", LS_CID = "id3z-cid", LS_HINT = "id3z-hint", LS_FILE = "id3z-fileid", LS_CONN = "id3z-connected";
   var DEFAULT_CAP = 49.6;
 
@@ -373,20 +374,20 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
   }
   function findFile(){
     var id=lsGet(LS_FILE); if(id) return Promise.resolve(id);
-    var q=encodeURIComponent("name='"+FILE_NAME+"' and trashed=false");
-    return drive("https://www.googleapis.com/drive/v3/files?q="+q+"&fields=files(id,name)&spaces=drive").then(function(r){return r.json();})
+    var q=encodeURIComponent("name='"+FILE_NAME+"' and '"+FOLDER_ID+"' in parents and trashed=false");
+    return drive("https://www.googleapis.com/drive/v3/files?q="+q+"&fields=files(id,name)&supportsAllDrives=true&includeItemsFromAllDrives=true").then(function(r){return r.json();})
       .then(function(j){ var f=j.files&&j.files[0]; if(f){ lsSet(LS_FILE,f.id); return f.id; } return null; });
   }
   function readFile(id){ return drive("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media").then(function(r){return r.json();}); }
   function createFile(body){
     var boundary="id3z"+Date.now();
-    var meta=JSON.stringify({name:FILE_NAME,mimeType:"application/json"});
+    var meta=JSON.stringify({name:FILE_NAME,mimeType:"application/json",parents:[FOLDER_ID]});
     var payload="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+"\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+body+"\r\n--"+boundary+"--";
-    return drive("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+boundary},body:payload})
+    return drive("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+boundary},body:payload})
       .then(function(r){return r.json();}).then(function(j){ lsSet(LS_FILE,j.id); return j.id; });
   }
   function updateFile(id,body){
-    return drive("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{"Content-Type":"application/json"},body:body});
+    return drive("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media&supportsAllDrives=true",{method:"PATCH",headers:{"Content-Type":"application/json"},body:body});
   }
 
   var syncing=false, again=false, timer=null;
