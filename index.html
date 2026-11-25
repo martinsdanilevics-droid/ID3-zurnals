@@ -74,6 +74,36 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline
 details summary{cursor:pointer;font-weight:600;font-family:var(--font-head)}
 details .grid{margin-top:12px}
 ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
+.tempwrap{display:flex;gap:8px}
+.tempwrap input{flex:1;min-width:0}
+.signbtn{min-height:46px;min-width:56px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);color:var(--ink);overflow-y:auto;
+  padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(32px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ov-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.ov-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ov-head h2{margin:0;font-size:1.25rem}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{font:inherit;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.sumrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sumrow div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;min-width:0}
+.sumrow b{display:block;font-family:var(--font-head);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.sumrow span{font-size:.72rem;color:var(--mute)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table.ovt{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+table.ovt th,table.ovt td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+table.ovt th:first-child,table.ovt td:first-child{text-align:left}
+table.ovt th{font-size:.75rem;color:var(--mute);font-weight:500}
+table.ovt tfoot td{font-weight:700;border-bottom:0}
+table.ovt tr:last-child td{border-bottom:0}
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  body>.wrap{display:none!important}
+  .ov{position:static;overflow:visible;background:#fff;color:#000;padding:0}
+  .noprint{display:none!important}
+  .tw,.sumrow div{border-color:#999;background:#fff}
+}
 </style>
 </head>
 <body>
@@ -96,6 +126,8 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
     <div class="tile"><span>Pēdējās 7 dienas</span><b id="t-7">–</b><small id="t-7-s">kWh/100 km</small></div>
   </div>
 
+  <button class="btn ghost" type="button" id="open-ov">Pārskats pa dienām (km un kWh)</button>
+
   <form class="card" id="form" autocomplete="off">
     <h2 id="form-title">Jauns ieraksts</h2>
     <div class="grid">
@@ -103,7 +135,7 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
       <label class="full">Odometrs dienas beigās, km<input type="number" id="f-odo" inputmode="numeric" min="0" step="1" placeholder="70156" required></label>
       <label>Akumulators rītā, %<input type="number" id="f-s0" inputmode="numeric" min="0" max="100" step="1" placeholder="80"></label>
       <label>Akumulators vakarā, %<input type="number" id="f-s1" inputmode="numeric" min="0" max="100" step="1" placeholder="55"></label>
-      <label>Āra temperatūra, °C<input type="number" id="f-temp" inputmode="decimal" step="1" placeholder="3"></label>
+      <label>Āra temperatūra, °C<span class="tempwrap"><input type="text" id="f-temp" inputmode="decimal" autocomplete="off" placeholder="-3"><button type="button" class="signbtn" id="t-sign" aria-label="Mainīt zīmi starp plus un mīnus">+/−</button></span></label>
       <div style="display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--mute)">Priekšsildīšana
         <div class="seg" role="group" aria-label="Priekšsildīšana">
           <button type="button" id="p-yes" aria-pressed="false">Jā</button>
@@ -149,6 +181,26 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
   </div>
 </div>
 
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="ov-title">
+  <div class="ov-in">
+    <div class="ov-head">
+      <h2 id="ov-title">Pārskats pa dienām</h2>
+      <button class="btn ghost small noprint" type="button" id="ov-close">Aizvērt</button>
+    </div>
+    <div class="chips noprint" id="ov-chips">
+      <button type="button" data-n="7" aria-pressed="true">7 dienas</button>
+      <button type="button" data-n="30" aria-pressed="false">30 dienas</button>
+      <button type="button" data-n="0" aria-pressed="false">Viss</button>
+    </div>
+    <div class="sumrow" id="ov-sum"></div>
+    <div class="tw"><table class="ovt" id="ov-table"></table></div>
+    <p class="note" id="ov-note"></p>
+    <div class="foot noprint">
+      <button class="btn primary" type="button" id="ov-print">Drukāt / saglabāt PDF</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 (function(){
@@ -170,6 +222,12 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
   function fmtDate(s){ var p=s.split("-"); return p[2]+"."+p[1]+"."+p[0]; }
   function num(v){ return (v===null||v===undefined||v==="")?null:Number(v); }
   function f1(v){ return v.toFixed(1).replace(".",","); }
+  function parseTemp(v){
+    if(v===null||v===undefined) return null;
+    v=String(v).trim().replace(/[\u2212\u2013\u2014]/g,"-").replace(",",".");
+    if(v==="") return null;
+    var n=Number(v); return isFinite(n)?n:NaN;
+  }
   function fmtKm(v){ return Math.round(v).toLocaleString("lv-LV"); }
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
@@ -261,7 +319,7 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
       var s=document.createElement("div"); s.className="s", bits=[];
       var bits=[];
       if(e.soc0!=null&&e.soc1!=null) bits.push(e.soc0+" → "+e.soc1+" %"); else if(e.soc1!=null) bits.push("vakarā "+e.soc1+" %");
-      if(e.temp!=null) bits.push(e.temp+" °C");
+      if(e.temp!=null) bits.push(String(e.temp).replace(".",",")+" °C");
       if(e.pre===true) bits.push("priekšsildīšana");
       if(r.kwh!=null) bits.push(f1(r.kwh)+" kWh");
       s.textContent=bits.join(" · ");
@@ -302,8 +360,9 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
 
   $("form").addEventListener("submit",function(ev){
     ev.preventDefault();
-    var date=$("f-date").value, odo=num($("f-odo").value), s0=num($("f-s0").value), s1=num($("f-s1").value), t=num($("f-temp").value);
+    var date=$("f-date").value, odo=num($("f-odo").value), s0=num($("f-s0").value), s1=num($("f-s1").value), t=parseTemp($("f-temp").value);
     if(!date||odo==null){ note("Ievadi datumu un odometru.",true); return; }
+    if(t!==null && isNaN(t)){ note("Temperatūrai ievadi skaitli, piemēram -3.",true); return; }
     if((s0!=null&&(s0<0||s0>100))||(s1!=null&&(s1<0||s1>100))){ note("Akumulatora % jābūt no 0 līdz 100.",true); return; }
     var prev=null; Object.keys(state.entries).sort().forEach(function(k){ if(k<date) prev=state.entries[k]; });
     if(prev&&prev.odo!=null&&odo<prev.odo){ note("Odometrs ir mazāks nekā "+fmtDate(prev.date)+" ("+fmtKm(prev.odo)+" km). Pārbaudi ciparus.",true); return; }
@@ -431,6 +490,61 @@ ol.steps{margin:8px 0 0;padding-left:20px;font-size:.85rem;color:var(--mute)}
   });
   $("f-cid").addEventListener("change",function(){ lsSet(LS_CID,$("f-cid").value.trim()); tokenClient=null; updateConnectCard(); setSetNote("Client ID saglabāts."); });
   $("f-hint").addEventListener("change",function(){ lsSet(LS_HINT,$("f-hint").value.trim()); tokenClient=null; updateConnectCard(); });
+
+  $("t-sign").addEventListener("click",function(){
+    var el=$("f-temp"), v=el.value.trim().replace(/[\u2212]/g,"-");
+    if(v.charAt(0)==="-") v=v.slice(1); else v="-"+v;
+    el.value=v; el.focus();
+  });
+
+  /* ====== pārskats pa dienām ====== */
+  var ovDays=7;
+  function renderOverview(){
+    var rows=compute().filter(function(r){ return r.km!=null && r.km>0; });
+    if(ovDays>0){ var cut=dayNum(today())-(ovDays-1); rows=rows.filter(function(r){ return dayNum(r.e.date)>=cut; }); }
+    rows=rows.slice().reverse();
+    var km=0,kwh=0,ckm=0;
+    rows.forEach(function(r){ km+=r.km; if(r.kwh!=null){ kwh+=r.kwh; ckm+=r.km; } });
+    var sum=$("ov-sum"); sum.textContent="";
+    [[fmtKm(km),"km kopā"],[ckm>0?f1(kwh):"–","kWh kopā"],[ckm>0?f1(kwh/ckm*100):"–","kWh/100 km"]].forEach(function(x){
+      var d=document.createElement("div"), b=document.createElement("b"), sp=document.createElement("span");
+      b.textContent=x[0]; sp.textContent=x[1]; d.appendChild(b); d.appendChild(sp); sum.appendChild(d);
+    });
+    var t=$("ov-table"); t.textContent="";
+    var thead=document.createElement("thead"), hr=document.createElement("tr");
+    ["Datums","km","kWh","kWh/100","°C"].forEach(function(h){ var th=document.createElement("th"); th.textContent=h; hr.appendChild(th); });
+    thead.appendChild(hr); t.appendChild(thead);
+    var tb=document.createElement("tbody");
+    if(!rows.length){
+      var tr0=document.createElement("tr"), td0=document.createElement("td"); td0.colSpan=5; td0.style.textAlign="left"; td0.textContent="Šajā periodā nav dienu ar nobraukumu."; tr0.appendChild(td0); tb.appendChild(tr0);
+    }
+    var multi=false;
+    rows.forEach(function(r){
+      var tr=document.createElement("tr"), vals=[fmtDate(r.e.date), String(r.km)+(r.gap>1?"*":""), r.kwh!=null?f1(r.kwh):"–", r.cons!=null?f1(r.cons):"–", r.e.temp!=null?String(r.e.temp).replace(".",","):"–"];
+      if(r.gap>1) multi=true;
+      vals.forEach(function(v){ var td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    if(rows.length){
+      var tf=document.createElement("tfoot"), tr2=document.createElement("tr");
+      ["Kopā",String(km),ckm>0?f1(kwh):"–",ckm>0?f1(kwh/ckm*100):"–",""].forEach(function(v){ var td=document.createElement("td"); td.textContent=v; tr2.appendChild(td); });
+      tf.appendChild(tr2); t.appendChild(tf);
+    }
+    $("ov-note").textContent="– nozīmē, ka kWh nav aprēķināms (nav % vai ir izlaista diena vai uzlāde dienas laikā)."+(multi?" * km ietver vairākas dienas starp ierakstiem.":"")+" kWh/100 km rēķina tikai dienām ar kWh.";
+  }
+  function openOv(){ $("ov").hidden=false; renderOverview(); document.body.style.overflow="hidden"; $("ov-close").focus(); }
+  function closeOv(){ $("ov").hidden=true; document.body.style.overflow=""; $("open-ov").focus(); }
+  $("open-ov").addEventListener("click",openOv);
+  $("ov-close").addEventListener("click",closeOv);
+  $("ov-print").addEventListener("click",function(){ window.print(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape" && !$("ov").hidden) closeOv(); });
+  $("ov-chips").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    ovDays=+b.getAttribute("data-n");
+    Array.prototype.forEach.call($("ov-chips").children,function(c){ c.setAttribute("aria-pressed",String(c===b)); });
+    renderOverview();
+  });
 
   /* ====== sākums ====== */
   $("f-cap").value=state.cap; $("f-cid").value=clientId(); $("f-hint").value=hint();
